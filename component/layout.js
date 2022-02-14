@@ -128,7 +128,7 @@ export default function LayoutKu({children}) {
                         <Row justify='space-between' style={{marginRight: '20px', marginLeft: '20px'}} align='middle'>
                             <Col>
                                 {session&&(
-                                    <h1>Hi, {session.user.name}</h1>
+                                    <h1>Hi, {session.user.full_name}</h1>
                                 )}
                             </Col>
                             <Space size="middle">

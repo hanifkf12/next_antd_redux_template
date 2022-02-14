@@ -5,6 +5,7 @@ import {SessionProvider} from 'next-auth/react'
 import {useSession} from "next-auth/react";
 import {wrapper} from "../redux/store";
 import '../utils/Tes.module.css';
+import {Col, Row, Spin} from "antd";
 
 function MyApp({Component, pageProps: {session, ...pageProps}}) {
     const getLayout = Component.getLayout || ((page) => page)
@@ -34,7 +35,13 @@ function Auth({children}) {
 
     // Session is being fetched, or no user.
     // If no user, useEffect() will redirect.
-    return <div>Loading Masss...</div>
+    return <div>
+        <Row style={{minHeight: '100vh'}} justify={'center'} align={'middle'}>
+            <Col>
+                <Spin tip={'Loading...'} size="large" />
+            </Col>
+        </Row>
+    </div>
 }
 
 export default wrapper.withRedux(MyApp)

@@ -1,6 +1,7 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GitHubProvider from "next-auth/providers/github";
+import axios from "axios";
 
 export default NextAuth({
     providers: [
@@ -22,44 +23,41 @@ export default NextAuth({
                 // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
                 // You can also use the `req` object to obtain additional parameters
                 // (i.e., the request IP address)
-                // const res = await fetch("/your/endpoint", {
+                // const res = await fetch("http://127.0.0.1:4005/api/v1/users/admin/login", {
                 //     method: 'POST',
                 //     body: JSON.stringify(credentials),
                 //     headers: { "Content-Type": "application/json" }
                 // })
-                // const user = await res.json()
-                if (
-                    credentials.username === "john" &&
-                    credentials.password === "test"
-                ) {
-                    return {
-                        id: 2,
-                        name: "John",
-                        email: "johndoe@test.com",
-                    };
+                // const response = await res.json()
+                const {data: response}= await axios.post(`${process.env.BASE_URL}/api/v1/users/admin/login`, credentials)
+                // console.log(response)
+                if(response.status) {
+                    return response
                 }
                 // Return null if user data could not be retrieved
                 return null
             }
         }),
-        GitHubProvider({
-            clientId: process.env.GITHUB_CLIENT_ID,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET
-        })
+        // GitHubProvider({
+        //     clientId: process.env.GITHUB_CLIENT_ID,
+        //     clientSecret: process.env.GITHUB_CLIENT_SECRET
+        // })
     ],
     callbacks: {
         jwt: ({ token, user }) => {
             // first time jwt callback is run, user object is available
+            console.log(token)
             if (user) {
-                token.id = user;
+                token.user = user.user;
+                token.token = user.token;
             }
 
             return token;
         },
         session: ({ session, token }) => {
             if (token) {
-                session.id = token.id;
-                session.hello= 'WORLD'
+                session.user = token.user;
+                session.token = token.token;
             }
 
             return session;
