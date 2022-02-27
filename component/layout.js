@@ -17,7 +17,7 @@ import {
     AppstoreOutlined,
     BarChartOutlined, BellOutlined,
     CiCircleFilled, CloudOutlined, DesktopOutlined, DollarCircleOutlined, ExpandAltOutlined, ExportOutlined,
-    FileOutlined, HomeFilled, InfoCircleOutlined,
+    FileOutlined, HddOutlined, HomeFilled, InfoCircleOutlined,
     LaptopOutlined, LogoutOutlined, MoneyCollectOutlined,
     NotificationOutlined, PieChartOutlined, ShopOutlined,
     TeamOutlined, UploadOutlined,
@@ -57,25 +57,6 @@ export default function LayoutKu({children}) {
             renderItem={item => <List.Item>{item}</List.Item>}
         />
     );
-    const menu = (
-        <Menu>
-            <Menu.Item>
-                <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-                    1st menu item
-                </a>
-            </Menu.Item>
-            <Menu.Item>
-                <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-                    2nd menu item
-                </a>
-            </Menu.Item>
-            <Menu.Item>
-                <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
-                    3rd menu item
-                </a>
-            </Menu.Item>
-        </Menu>
-    );
     return (
         <>
             <Layout hasSider>
@@ -104,20 +85,21 @@ export default function LayoutKu({children}) {
                             <Menu.Item key="/simpanan/pokok">Simpanan Pokok</Menu.Item>
                             <Menu.Item key="/simpanan/wajib">Simpanan Wajib</Menu.Item>
                         </SubMenu>
-                        <SubMenu key="pinjaman" icon={<AppstoreOutlined />} title="Pinjaman">
-                            <Menu.Item key="5">Daftar Pinjaman</Menu.Item>
-                            <Menu.Item key="6">Ajukan Pinjaman</Menu.Item>
-                            <Menu.Item key="00">Pembayaran</Menu.Item>
+                        <SubMenu key="pinjaman2" icon={<AppstoreOutlined />} title="Pinjaman">
+                            <Menu.Item key="/pinjaman">Daftar Pinjaman</Menu.Item>
+                            <Menu.Item key="/pinjaman/baru">Ajukan Pinjaman</Menu.Item>
+                            {/*<Menu.Item key="/pinjaman/bayar">Pembayaran</Menu.Item>*/}
                         </SubMenu>
-                        <Menu.Item key="16" icon={<ExpandAltOutlined/>}>
+                        <Menu.Item key="/pengeluaran" icon={<ExpandAltOutlined/>}>
                             Pengeluaran
                         </Menu.Item>
-                        <Menu.Item key="162" icon={<ExpandAltOutlined/>}>
-                            Inventaris
-                        </Menu.Item>
-                        <Menu.Item key="7" icon={<InfoCircleOutlined/>}>
-                            Pemasukan
-                        </Menu.Item>
+                        <SubMenu key="/inventaris2" icon={<HddOutlined />} title={"Inventaris"}>
+                            <Menu.Item key="/inventaris">Daftar Inventaris</Menu.Item>
+                            <Menu.Item key="/inventaris/tambah">Tambah Inventaris</Menu.Item>
+                        </SubMenu>
+                        {/*<Menu.Item key="7" icon={<InfoCircleOutlined/>}>*/}
+                        {/*    Pemasukan*/}
+                        {/*</Menu.Item>*/}
                         {/*<Menu.Item key="8" icon={<ExportOutlined/>}>*/}
                         {/*    Reporting*/}
                         {/*</Menu.Item>*/}
@@ -132,11 +114,11 @@ export default function LayoutKu({children}) {
                                 )}
                             </Col>
                             <Space size="middle">
-                                <Badge count={10}>
-                                    <Popover placement="bottomRight" content={content} trigger="click">
-                                        <Button icon={<BellOutlined/>} shape={"round"} type='dashed'/>
-                                    </Popover>
-                                </Badge>
+                                {/*<Badge count={10}>*/}
+                                {/*    <Popover placement="bottomRight" content={content} trigger="click">*/}
+                                {/*        <Button icon={<BellOutlined/>} shape={"round"} type='dashed'/>*/}
+                                {/*    </Popover>*/}
+                                {/*</Badge>*/}
                                 <Popconfirm
                                     placement="bottomRight"
                                     title={'Apakah yakin untuk keluar?'}
