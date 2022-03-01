@@ -37,7 +37,7 @@ export default function LayoutKu({children}) {
     const [collapsed, setCollapsed] = useState(false)
     const {SubMenu} = Menu;
     const router = useRouter()
-    console.log('Path, ', router.pathname)
+    // console.log('Path, ', router.pathname)
     const handleClick = (e) => {
         console.log('TESS, ', e)
         router.push(e.key)
@@ -81,18 +81,20 @@ export default function LayoutKu({children}) {
                             <Menu.Item key="/anggota">Daftar Anggota</Menu.Item>
                             <Menu.Item key="/anggota/tambah">Tambah Anggota</Menu.Item>
                         </SubMenu>
-                        <SubMenu key="simpanan" icon={<FileOutlined />} title="Simpanan">
-                            <Menu.Item key="/simpanan/pokok">Simpanan Pokok</Menu.Item>
-                            <Menu.Item key="/simpanan/wajib">Simpanan Wajib</Menu.Item>
-                        </SubMenu>
+                        {/*<SubMenu key="simpanan" icon={<FileOutlined />} title="Simpanan">*/}
+                        {/*    <Menu.Item key="/simpanan/pokok">Simpanan Pokok</Menu.Item>*/}
+                        {/*    <Menu.Item key="/simpanan/wajib">Simpanan Wajib</Menu.Item>*/}
+                        {/*</SubMenu>*/}
                         <SubMenu key="pinjaman2" icon={<AppstoreOutlined />} title="Pinjaman">
                             <Menu.Item key="/pinjaman">Daftar Pinjaman</Menu.Item>
-                            <Menu.Item key="/pinjaman/baru">Ajukan Pinjaman</Menu.Item>
+                            <Menu.Item key="/pinjaman/approval/daftar">Approval Pinjaman</Menu.Item>
+                            {/*<Menu.Item key="/pinjaman/baru">Ajukan Pinjaman</Menu.Item>*/}
                             {/*<Menu.Item key="/pinjaman/bayar">Pembayaran</Menu.Item>*/}
                         </SubMenu>
-                        <Menu.Item key="/pengeluaran" icon={<ExpandAltOutlined/>}>
-                            Pengeluaran
-                        </Menu.Item>
+                        <SubMenu title={"Pengeluaran"} key="/pengeluaran1" icon={<ExpandAltOutlined/>}>
+                            <Menu.Item key="/pengeluaran">Daftar Pengeluaran</Menu.Item>
+                            <Menu.Item key="/pengeluaran/tambah">Tambah Pengeluaran</Menu.Item>
+                        </SubMenu>
                         <SubMenu key="/inventaris2" icon={<HddOutlined />} title={"Inventaris"}>
                             <Menu.Item key="/inventaris">Daftar Inventaris</Menu.Item>
                             <Menu.Item key="/inventaris/tambah">Tambah Inventaris</Menu.Item>

@@ -9,28 +9,31 @@ import {useSession} from "next-auth/react";
 import {DeleteModal} from '../../component/my_modal'
 import {useRouter} from "next/router";
 import {searchFilter} from "../../utils/filterHelper";
+import {inventarisDispatch} from "../../redux/inventaris_redux";
+import {connect} from "react-redux";
+import convertRupiah from "rupiah-format";
 
 const Inventaris = (props) => {
-    const { data: session } = useSession()
+    const {data: session} = useSession()
     const router = useRouter()
     const [modal, setModal] = useState(false)
-    const [loading, setLoading] = useState(false)
-    const [inventaris, setInventaris] = useState([])
     const [id, setId] = useState(0)
-    const showModal = (data)=>{
+    const showModal = (data) => {
         setModal(true)
         setId(data.id)
     }
-    const hideModal = ()=>{
+    const hideModal = () => {
         setModal(false)
         setId(0)
 
     }
 
-    const confirmDelete = async () =>{
-        await deleteInventaris(id, session.token)
+    const confirmDelete = async () => {
+        props.deleteInventaris({
+            id: id,
+            token: session.token
+        })
         hideModal()
-        await getData()
     }
     const columns = [
         {
@@ -48,6 +51,9 @@ const Inventaris = (props) => {
             title: 'Biaya',
             dataIndex: 'biaya',
             key: 'biaya',
+            render: (text, record) => (
+                <>{convertRupiah.convert(record.biaya)}</>
+            )
         },
         {
             title: 'Tanggal',
@@ -63,66 +69,61 @@ const Inventaris = (props) => {
             align: 'center',
             render: (text, record) => (
                 <Space size="small">
-                    <Button shape={'round'}style={{backgroundColor:'#5a4cf5', color:'white'}} icon={<EditOutlined/>}/>
-                    <Button shape={'round'}style={{backgroundColor:'#589d45', color:'white'}} icon={<EyeOutlined/>}/>
-                    <Button shape={'round'}onClick={()=>showModal(record)}style={{backgroundColor: 'red', color: 'white'}} icon={<DeleteOutlined/>}/>
+                    <Button onClick={() => {
+                        router.push(`/inventaris/edit/${record.id}`)
+                    }} style={{color: 'white',
+                        backgroundColor: 'forestgreen'}} icon={<EditOutlined/>}/>
+                    {/*<Button shape={'round'} style={{backgroundColor: '#589d45', color: 'white'}} icon={<EyeOutlined/>}/>*/}
+                    <Button onClick={() => showModal(record)}
+                            style={{backgroundColor: 'red', color: 'white'}} icon={<DeleteOutlined/>}/>
                 </Space>
             ),
         },
     ];
-    const getData = async () => {
-        const data = await getAllInventaris(session.token)
-        if(data){
-            setInventaris(data)
-        }
-        return data
-    }
-    const onSearch = (e)=>{
+    const onSearch = (e) => {
         console.log(e.target.value)
         router.push({
             pathname: '',
             search: new URLSearchParams({search: e.target.value})
         })
     }
-    const onSearch2 = (e)=>{
+    const onSearch2 = (e) => {
         console.log(e)
         router.push({
             pathname: '',
             search: new URLSearchParams({search: e})
         })
     }
-    useEffect(async ()=>{
-        const {search} = router.query
-        console.log(search)
-        const data = await getData()
-        const final = searchFilter(data? data: inventaris, 'nama_barang', search)
-        setInventaris(final)
-    }, [router.query])
-    return(
+    useEffect(async () => {
+        props.loadInventaris({token: session.token})
+    }, [])
+    return (
         <>
-            <DeleteModal title='Konfirmasi Hapus Anggota' confirm={confirmDelete}show={modal} hide={hideModal}/>
+            <DeleteModal title='Konfirmasi Hapus Anggota' confirm={confirmDelete} show={modal} hide={hideModal}/>
 
             <Card title='Inventaris Data'>
                 <Row>
                     <Col span={5}>
-                        <Input.Search onPressEnter={onSearch} placeholder={'Search'} onSearch={onSearch2} />
+                        <Input.Search onPressEnter={onSearch} placeholder={'Search'} onSearch={onSearch2}/>
                     </Col>
                 </Row>
-                {loading? (
+                {props.loading ? (
                     <div>
                         <Row justify={'center'} align={'middle'}>
                             <Col>
-                                <Spin tip={'Loading...'} size="small" />
+                                <Spin tip={'Loading...'} size="small"/>
                             </Col>
                         </Row>
                     </div>
                 ) : (
-                    <Table columns={columns} style={{marginTop: '20px'}} rowKey={'id'} dataSource={inventaris} pagination={{
+                    <Table columns={columns} style={{marginTop: '20px'}} rowKey={'id'} dataSource={
+                        searchFilter(props.inventaris, 'nama_barang', router.query.search)
+                    } pagination={{
                         pageSize: 10,
-                        total: inventaris.length
+                        total: searchFilter(props.inventaris, 'nama_barang', router.query.search).length,
                     }} onChange={(tess, sorter, tes) => {
-                        console.log('tess, ',tess)
-                        console.log('tes, ',tes)
+                        console.log('tess, ', tess)
+                        console.log('tes, ', tes)
                     }}/>
                 )}
             </Card>
@@ -131,7 +132,7 @@ const Inventaris = (props) => {
 }
 
 Inventaris.getLayout = function getLayout(page) {
-    return(
+    return (
         <LayoutKu>
             {page}
         </LayoutKu>
@@ -140,4 +141,10 @@ Inventaris.getLayout = function getLayout(page) {
 
 Inventaris.auth = true
 
-export default Inventaris
+const mapStateToProps = (state) => {
+    return {
+        inventaris: state.inventaris.inventaris,
+        loading: state.inventaris.loading
+    }
+}
+export default connect(mapStateToProps, inventarisDispatch)(Inventaris)

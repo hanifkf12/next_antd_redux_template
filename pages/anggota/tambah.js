@@ -1,11 +1,12 @@
 import LayoutKu from "../../component/layout";
-import {Button, Card, Form, Input, Row, Radio, Col, Space, Select} from "antd";
+import {Button, Card, Form, Input, Row, Radio, Col, Space, Select, DatePicker} from "antd";
 import {useEffect, useState} from "react";
 import {useRouter} from "next/router";
 import {anggotaDispatch} from "../../redux/anggota/anggota-redux";
 import {connect} from "react-redux";
 import {useSession} from "next-auth/react";
 import {tambahAnggota} from "../../service/service_anggota";
+import moment from "moment";
 
 function TambahAnggota(props) {
     const [form] = Form.useForm();
@@ -27,7 +28,7 @@ function TambahAnggota(props) {
     const [email, setEmail] = useState('')
     const [statusPerkawinan, setStatusPerkawinan] = useState('')
     const [tempatLahir, setTempatLahir] = useState('')
-    const [tanggalLahir, setTanggalLahir] = useState()
+    const [tanggalLahir, setTanggalLahir] = useState('')
 
     const [formLayout, setFormLayout] = useState('horizontal');
 
@@ -114,22 +115,25 @@ function TambahAnggota(props) {
     const onChangeTempatLahir = (e) => {
         setTempatLahir(e.target.value)
     }
-    const onChangeTanggalLahir = (e) => {
-        setTanggalLahir(e.target.value)
+    const onChangeTanggalLahir = (date, dateString) => {
+        console.log(date.format('LLLL'))
+        // console.log(dateString)
+        setTanggalLahir(date.format('LL'))
+        // setTanggalLahir(e.target.value)
     }
     const onChangeStatusPerkawinan = (e) => {
         setStatusPerkawinan(e)
     }
     useEffect(() => {
-
-        console.log('page change, ', page)
-    }, [router.query])
-    useEffect(() => {
         // Always do navigations after the first render
         props.loadProvinsi();
         // router.push(`${router.pathname}?page=${page}`, undefined, {shallow: true})
     }, [])
-
+    useEffect(()=>{
+        if(props.status){
+            router.push('/anggota')
+        }
+    },[props.status])
     const submit  = async () => {
         const data = {
             name: nama,
@@ -150,10 +154,9 @@ function TambahAnggota(props) {
             tanggal_lahir: tanggalLahir
         }
         console.log(data)
-        await tambahAnggota(data, session.token).then(status=>{
-            if (status){
-                router.push('/anggota')
-            }
+        props.tambahAnggota({
+            token: session.token,
+            data: data
         })
     }
 
@@ -199,7 +202,7 @@ function TambahAnggota(props) {
                     <Col span={16}>
                         <Space style={{width: '100%'}}>
                             <Input style={{width: '100%'}} onChange={onChangeTempatLahir} placeholder={'Tempat Lahir'} />
-                            <Input style={{width: '100%'}} placeholder={'Tanggal Lahir'} type={'date'} onChange={onChangeTanggalLahir}/>
+                            <DatePicker onChange={onChangeTanggalLahir} locale={'id'} />
                         </Space>
                     </Col>
                 </Row>
@@ -350,6 +353,8 @@ const mapStateToProps = (state) => {
         kota: state.anggota.kota,
         kecamatan: state.anggota.kecamatan,
         kelurahan: state.anggota.kelurahan,
+        loading: state.anggota.loading,
+        status: state.anggota.status
 
     }
 }

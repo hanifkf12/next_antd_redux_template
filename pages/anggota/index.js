@@ -30,34 +30,41 @@ import React, {useEffect, useState} from "react";
 import {testDispatch} from "../../redux/tes/testRedux";
 import {connect} from "react-redux";
 import {guardInstance} from '../../utils/axiosConfig'
+
 function SubMenu(props) {
     return null;
 }
+
 import {DeleteModal} from '../../component/my_modal'
 import {deleteAnggota, getAllAnggota} from "../../service/service_anggota";
 import {searchFilter} from "../../utils/filterHelper";
 import {useRouter} from "next/router";
+import {anggotaDispatch} from "../../redux/anggota/anggota-redux";
+import convertRupiah from "rupiah-format";
 
 function Tes(props) {
-    const { data: session } = useSession()
+    const {data: session} = useSession()
     const router = useRouter()
     const axios = guardInstance(session.token)
     const [modal, setModal] = useState(false)
-    const onChange = () => {};
+    const onChange = () => {
+    };
     const {Title} = Typography;
-    const { Header, Content, Footer, Sider } = Layout;
-    const { SubMenu } = Menu;
+    const {Header, Content, Footer, Sider} = Layout;
+    const {SubMenu} = Menu;
     const info = () => {
         message.info('This is a normal message');
     };
-    const [user,setUser] = useState([])
+    const [filter, setFilter] = useState({
+        page: 1,
+        search: ''
+    })
     const [id, setId] = useState(0)
-    const [loading, setLoading] = useState(true)
-    const showModal = (data)=>{
+    const showModal = (data) => {
         setModal(true)
         setId(data.id)
     }
-    const hideModal = ()=>{
+    const hideModal = () => {
         setModal(false)
         setId(0)
     }
@@ -69,18 +76,8 @@ function Tes(props) {
     // }
 
     const confirmDelete = async () => {
-        await deleteAnggota(id, session.token)
+        props.deleteAnggota({id: id, token: session.token})
         hideModal()
-        await getData()
-    }
-    const getData = async () => {
-        setLoading(true)
-        const data = await getAllAnggota(session.token)
-        setLoading(false)
-        if(data){
-            setUser(data)
-        }
-        return data
     }
     const columns = [
         {
@@ -98,11 +95,21 @@ function Tes(props) {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            render: (text, record) => (
+                <>
+                    {record.status==='active'? 'Aktif' : 'Tidak Aktif'}
+                </>
+            )
         },
         {
-            title: 'No Hp',
-            dataIndex: 'phone',
+            title: 'Simpanan Pokok',
+            dataIndex: ['simpanan_pokok','jumlah'],
             key: 'phone',
+            render: (text, record) => (
+                <>
+                    {convertRupiah.convert(record.simpanan_pokok.jumlah)}
+                </>
+            )
         },
         // {
         //     title: 'Tags',
@@ -130,55 +137,88 @@ function Tes(props) {
             align: 'center',
             render: (text, record) => (
                 <Space size="small">
-                    <Button shape={'round'} style={{backgroundColor:'#5a4cf5', color:'white'}} icon={<EditOutlined/>}/>
-                    <Button shape={'round'} style={{backgroundColor:'#589d45', color:'white'}} icon={<EyeOutlined/>}/>
-                    <Button shape={'round'} onClick={()=>showModal(record)}style={{backgroundColor: 'red', color: 'white'}} icon={<DeleteOutlined/>}/>
+                    <Button onClick={() => {
+                        router.push(`/anggota/edit/${record.id}`)
+                    }} style={{color: 'white',
+                        backgroundColor: 'forestgreen'}} icon={<EditOutlined/>}/>
+                    <Button onClick={() => {
+                        router.push(`/anggota/detail/${record.id}`)
+                    }} style={{backgroundColor: 'royalblue', color: 'white'}} icon={<EyeOutlined/>}/>
+                    <Button onClick={() => showModal(record)}
+                            style={{backgroundColor: 'red', color: 'white'}} icon={<DeleteOutlined/>}/>
                 </Space>
             ),
         },
     ];
-    const onSearch = (e)=>{
+    const onSearch = (e) => {
         console.log(e.target.value)
+        const newFilter = filter;
+        filter.search = e.target.value;
+        setFilter(newFilter)
         router.push({
             pathname: '',
-            search: new URLSearchParams({search: e.target.value})
+            search: new URLSearchParams(filter)
         })
     }
-    const onSearch2 = (e)=>{
+    const onSearch2 = (e) => {
         console.log(e)
         router.push({
             pathname: '',
             search: new URLSearchParams({search: e})
         })
     }
-    useEffect(async ()=>{
-        const {search} = router.query
-        console.log(search)
-        const data = await getData()
-        const final = searchFilter(data? data : [], 'name', search)
-        setUser(final)
-    }, [router.query])
-    return(
+    const onChangePage = (page, t) => {
+        const newFilter = filter;
+        filter.page = page;
+        setFilter(newFilter)
+        router.push({
+            pathname: '',
+            search: new URLSearchParams(filter)
+        })
+    }
+    console.log('search, ', router.query)
+    useEffect(async () => {
+        props.loadAnggota({token: session.token})
+        if (!router.query) {
+            router.push({
+                pathname: '',
+                search: new URLSearchParams(filter)
+            })
+        }
+    }, [])
+    return (
         <>
             <DeleteModal title='Konfirmasi Hapus Anggota' confirm={confirmDelete} show={modal} hide={hideModal}/>
-            <Card title='User Data'>
+            <Card title='Daftar Anggota Koperasi'>
                 <Row>
                     <Col span={5}>
                         <Input.Search onPressEnter={onSearch} placeholder={'Search'} onSearch={onSearch2}/>
                     </Col>
                 </Row>
-                {loading? (
+
+                {props.loading ? (
                     <div>
                         <Row justify={'center'} align={'middle'}>
                             <Col>
-                                <Spin tip={'Loading...'} size="small" />
+                                <Spin tip={'Loading...'} size="small"/>
                             </Col>
                         </Row>
                     </div>
                 ) : (
-                    <Table columns={columns} rowKey={'id'} dataSource={user} onChange={(tess) => {
-                        console.log(tess)
-                    }}/>
+                    <Table columns={columns} rowKey={'id'}
+                           style={{marginTop: '20px'}}
+                           dataSource={searchFilter(props.anggota, 'name', router.query.search)}
+                           pagination={{
+                               pageSize: 10,
+                               total: searchFilter(props.anggota, 'name', router.query.search).length,
+                               onChange: onChangePage,
+                               showTotal: (e, t) => {
+
+                               }
+                           }}
+                           onChange={(tess) => {
+                               console.log(tess)
+                           }}/>
                 )}
             </Card>
         </>
@@ -194,11 +234,13 @@ function Tes(props) {
 // }
 const mapStateToProps = (state) => {
     return {
-        data: state.tes.data
+        data: state.tes.data,
+        anggota: state.anggota.anggota,
+        loading: state.anggota.loading
     }
 }
 Tes.getLayout = function getLayout(page) {
-    return(
+    return (
         <LayoutKu>
             {page}
         </LayoutKu>
@@ -207,5 +249,5 @@ Tes.getLayout = function getLayout(page) {
 
 Tes.auth = true
 
-export default connect(mapStateToProps, testDispatch)(Tes)
+export default connect(mapStateToProps, anggotaDispatch)(Tes)
 

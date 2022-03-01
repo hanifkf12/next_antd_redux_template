@@ -1,11 +1,14 @@
 import React, {useEffect, useState} from "react";
 import LayoutKu from "../../component/layout";
-import {Button, Card, Col, Input, Row, Select} from "antd";
+import {Button, Card, Col, DatePicker, Input, Row, Select} from "antd";
 import {getAllCategories, saveData} from "../../service/service_inventaris";
 import {useSession} from "next-auth/react";
-import {router} from "next/client";
+import {inventarisDispatch} from "../../redux/inventaris_redux";
+import {connect} from "react-redux";
+import {useRouter} from "next/router";
 
 const TambahInventaris = (props) => {
+    const router = useRouter()
     const { data: session } = useSession()
     const [dataCategory, setDataCategory] = useState([])
     const [nama, setNama] = useState('')
@@ -27,7 +30,7 @@ const TambahInventaris = (props) => {
         setKeterangan(e.target.value)
     }
     const onChangeTanggal = (e) => {
-        setTanggal(e.target.value)
+        setTanggal(e.format('LL'))
     }
 
     const categoryOptions = [];
@@ -40,16 +43,15 @@ const TambahInventaris = (props) => {
             nama_barang: nama,
             kategori: splitCategory[0],
             kategori_id: splitCategory[1],
-            biaya: 100000000,
+            biaya: biaya,
             keterangan: keterangan,
             tanggal: tanggal
         }
         console.log(data)
-        await saveData(data, session.token).then(status=>{
-            if(status){
-                router.push('/inventaris')
-            }
-        });
+        props.saveInventaris({
+            token: session.token,
+            data: data
+        })
     }
     const getCategory = async () => {
         const data = await getAllCategories(session.token)
@@ -58,9 +60,16 @@ const TambahInventaris = (props) => {
     useEffect(async ()=>{
         await getCategory()
     },[])
+
+    useEffect(()=>{
+        console.log(props.status)
+        if(props.status){
+            router.push('/inventaris')
+        }
+    },[props.status])
     return(
         <>
-            <Card title='Inventaris Data'>
+            <Card title='Tambah Data Inventaris'>
                 <Row justify={"start"} align={'middle'}>
                     <Col span={3}>
                         Nama Barang
@@ -100,7 +109,7 @@ const TambahInventaris = (props) => {
                         Tanggal
                     </Col>
                     <Col span={16}>
-                        <Input  onChange={onChangeTanggal} placeholder={'Tanggal'} type={'date'} style={{width: '50%'}}/>
+                        <DatePicker  onChange={onChangeTanggal} placeholder={'Tanggal'} style={{width: '50%'}}/>
                     </Col>
                 </Row>
                 <Row style={{marginTop: '20px'}} justify={"start"} align='middle'>
@@ -127,4 +136,11 @@ TambahInventaris.getLayout = function getLayout(page) {
 
 TambahInventaris.auth = true
 
-export default TambahInventaris
+const mapStateToProps = (state) => {
+    return{
+        loading: state.inventaris.loading,
+        status: state.inventaris.status,
+    }
+}
+
+export default connect(mapStateToProps, inventarisDispatch)(TambahInventaris)
