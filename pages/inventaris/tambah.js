@@ -64,7 +64,7 @@ const TambahInventaris = (props) => {
     useEffect(()=>{
         console.log(props.status)
         if(props.status){
-            router.push('/inventaris')
+            router.replace('/inventaris')
         }
     },[props.status])
     return(

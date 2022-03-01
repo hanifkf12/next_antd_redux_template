@@ -142,7 +142,7 @@ function EditAnggota(props) {
     }, [])
     useEffect(async ()=>{
         if(props.status){
-            router.push('/anggota')
+            router.replace('/anggota')
         }
     },[props.status])
     const submit  = async () => {

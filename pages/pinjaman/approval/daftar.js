@@ -6,6 +6,7 @@ import {DeleteOutlined, EditOutlined, EyeOutlined} from "@ant-design/icons";
 import {pinjamanDispatch} from "../../../redux/pinjaman_redux";
 import {connect} from "react-redux";
 import {useSession} from "next-auth/react";
+import convertRupiah from "rupiah-format";
 
 const ApprovalPinjaman = (props) => {
     const router = useRouter()
@@ -38,6 +39,9 @@ const ApprovalPinjaman = (props) => {
             title: 'Jumlah Diajukan',
             dataIndex: 'jumlah_diajukan',
             key: 'jumlah_diajukan',
+            render: (tex, record) => (
+                <>{convertRupiah.convert(record.jumlah_diajukan)}</>
+            )
         },
         {
             title: 'Status Pengajuan',
@@ -55,7 +59,9 @@ const ApprovalPinjaman = (props) => {
             align: 'center',
             render: (text, record) => (
                 <Space size="small">
-                    <Button shape={'round'}style={{backgroundColor:'forestgreen', color:'white'}}>Review</Button>
+                    <Button onClick={()=>{
+                        router.push(`/pinjaman/approval/${record.id}`)
+                    }} style={{backgroundColor:'forestgreen', color:'white'}}>Review</Button>
                 </Space>
             ),
         },
@@ -67,7 +73,7 @@ const ApprovalPinjaman = (props) => {
     },[])
     return(
         <>
-            <Card title='Approval Pinjaman'>
+            <Card title='Daftar Pengajuan Pinjaman'>
                 {/*<Row gutter={6} justify={'start'}>*/}
                 {/*    <Col span={5}>*/}
                 {/*        <Input.Search onPressEnter={onSearch} placeholder={'Search'} onSearch={onSearch2}/>*/}

@@ -71,7 +71,7 @@ const EditInventaris = (props) => {
     useEffect(()=>{
         console.log(props.status, 'Status')
         if(props.status){
-            router.push('/inventaris')
+            router.replace('/inventaris')
         }
     },[props.status])
     return(

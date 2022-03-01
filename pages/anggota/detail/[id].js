@@ -1,23 +1,51 @@
 import React, {useEffect, useState} from "react";
 import {useRouter} from "next/router";
 import LayoutKu from "../../../component/layout";
-import {Button, Card, Col, DatePicker, Input, Row, Select, Space, Spin, Table} from "antd";
+import {Button, Card, Col, DatePicker, Input, message, Row, Select, Space, Spin, Table} from "antd";
 import {anggotaDispatch} from "../../../redux/anggota/anggota-redux";
 import {useSession} from "next-auth/react";
-import {connect} from "react-redux";
+import {connect, useDispatch} from "react-redux";
 import moment from "moment";
 import {groupFilter, searchFilter} from "../../../utils/filterHelper";
 import 'moment/locale/id'
 import convertRupiah from "rupiah-format";
 import BayarSimpananWajibModal from "../../../component/bayar_simpanan_modal";
 import BayarAngsuranModal from "../../../component/bayar_angsuran_modal";
+import AjukanPinjamanModal from "../../../component/ajukan_pinjaman_modal";
+import {pinjamanDispatch} from "../../../redux/pinjaman_redux";
 const DetailUser = (props) => {
     const router = useRouter()
     const {data: session} = useSession()
+    const dispatch = useDispatch()
     const {id} = router.query;
     const [tahunSimpanan, setTahunSimpanan] = useState('')
     const [bulanSimpanan, setBulanSimpanan] = useState('')
     const [tahunPinjaman, setTahunPinjaman] = useState('')
+    const [viewAjukanPinjaman, setViewAjukanPinjaman] = useState(false)
+    const showAjukanPinjaman = () => {
+        setViewAjukanPinjaman(true)
+    }
+    const hideAjukanPinjaman = () => {
+        setViewAjukanPinjaman(false)
+    }
+    const submitAjukanPinjaman = (data) => {
+        const newData = {
+            user_id: parseInt(id),
+            jumlah_diajukan: data.jumlah,
+            jumlah_diajukan_terbilang: data.terbilang,
+            masa_pinjaman: data.masaPinjaman,
+            jaminan: data.jaminan,
+            keperluan: data.keperluan,
+            status: "belum_lunas",
+            status_pengajuan: "diajukan",
+        }
+        console.log(newData)
+        dispatch(pinjamanDispatch.addNewPinjaman({
+            token: session.token,
+            data: newData
+        }))
+        hideAjukanPinjaman()
+    }
     const [bayarSimpananVisibility, setBayarSimpananVisibility] = useState(false)
     const [simpananId, setSimpananId] = useState(0)
     const [bayarData, setBayarData] = useState({})
@@ -175,6 +203,7 @@ const DetailUser = (props) => {
     }, [])
     return (
         <>
+            <AjukanPinjamanModal show={viewAjukanPinjaman} submit={submitAjukanPinjaman} hide={hideAjukanPinjaman} />
             <BayarSimpananWajibModal data={bayarData}show={bayarSimpananVisibility} submit={submitBayarAngsuran} hide={hideBayarSimpanan}/>
             <BayarAngsuranModal data={pinjamanData} show={bayarAngsuranVisibility} submit={submitBayarAngsuran} hide={hideBayarAngsuran}/>
             {props.loading ? (
@@ -336,7 +365,8 @@ const DetailUser = (props) => {
                                         {/*            picker={'year'}/>*/}
 
                                         <Button onClick={() => {
-                                            router.push('/pinjaman/baru')
+                                            // router.push('/pinjaman/baru')
+                                            showAjukanPinjaman()
                                         }} type={'primary'} style={{marginLeft: '20px'}}>Ajukan Pinjaman Baru</Button>
                                         <Table columns={pinjamanColumns} rowKey={'id'}
                                                dataSource={props.pinjamanAnggota}

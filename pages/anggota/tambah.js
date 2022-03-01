@@ -131,7 +131,7 @@ function TambahAnggota(props) {
     }, [])
     useEffect(()=>{
         if(props.status){
-            router.push('/anggota')
+            router.replace('/anggota')
         }
     },[props.status])
     const submit  = async () => {

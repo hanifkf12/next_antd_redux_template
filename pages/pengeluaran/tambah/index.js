@@ -44,7 +44,7 @@ const TambahPengeluaran = (props) => {
     }
     useEffect(()=>{
         if(props.status){
-            router.push('/pengeluaran')
+            router.replace('/pengeluaran')
         }
     }, [props.status])
     return(

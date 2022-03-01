@@ -8,6 +8,7 @@ const actionTypes = {
     LOAD_PINJAMAN_BERJALAN: 'LOAD_PINJAMAN_BERJALAN',
     PINJAMAN_BERJALAN_LOADED: 'PINJAMAN_BERJALAN_LOADED',
     APPROVE_PINJAMAN: 'APPROVE_PINJAMAN',
+    PINJAMAN_APPROVED: 'PINJAMAN_APPROVED',
     ADD_NEW_PINJAMAN: 'ADD_NEW_PINJAMAN',
     NEW_PINJAMAN_ADDED: 'NEW_PINJAMAN_ADDED',
     PINJAMAN_BY_ID: 'PINJAMAN_BY_ID',
@@ -20,7 +21,8 @@ const initialState = {
     pinjamanBerjalan: [],
     pendingPinjaman: [],
     pinjamanData: {
-        angsuran: []
+        angsuran: [],
+        user: {}
     }
 }
 
@@ -71,6 +73,13 @@ export const reducer = function (state = initialState, {type, payload}){
                 loading: true
             }
         }
+        case actionTypes.PINJAMAN_APPROVED: {
+            return {
+                ...state,
+                loading: false,
+                status: payload
+            }
+        }
         case actionTypes.PINJAMAN_BY_ID: {
             return {
                 ...state,
@@ -119,6 +128,10 @@ export const pinjamanDispatch = {
         type: actionTypes.APPROVE_PINJAMAN,
         payload: data
     }),
+    pinjamanApproved: (data) => ({
+        type: actionTypes.PINJAMAN_APPROVED,
+        payload: data
+    }),
     pinjamanById: (data) => ({
         type: actionTypes.PINJAMAN_BY_ID,
         payload: data
@@ -158,6 +171,11 @@ export function* saga(){
         try {
             const {data: response} = yield guardInstance(payload.token).post(`${baseUrl}/api/v1/pinjaman/add/new`, payload.data)
             console.log(response)
+            if (response.status){
+                message.success('Pinjaman Berhasil Dibuat')
+            }else {
+                message.warn(response.message)
+            }
             yield put(pinjamanDispatch.newPinjamanAdded(response.status))
         }catch (e) {
             message.error(e.message);
@@ -166,10 +184,12 @@ export function* saga(){
     })
 
     yield takeLatest(actionTypes.APPROVE_PINJAMAN, function* ({payload}){
+        console.log(payload, 'PAYLOAD')
         try {
             const {data: response} = yield guardInstance(payload.token).post(`${baseUrl}/api/v1/pinjaman/approve/${payload.id}`, payload.data)
             console.log(response)
-            yield put(pinjamanDispatch.loadPendingPinjaman(payload))
+            yield put(pinjamanDispatch.pinjamanApproved(response.status))
+            // yield put(pinjamanDispatch.loadPendingPinjaman(payload))
         }catch (e) {
             message.error(e.message);
             console.log(e.response);
