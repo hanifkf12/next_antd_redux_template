@@ -9,6 +9,15 @@ const DeleteModal = (props)=>{
     )
 }
 
+const EditConfirmationModal = ({title, show, confirm, hide}) => {
+    return(
+        <Modal title={`Konfirmasi Update Data ${title}`} visible={show} onOk={confirm} onCancel={hide} cancelButtonProps={{}}>
+            {`Apakah anda yakin akan mengubah data ini?`}
+        </Modal>
+    )
+}
+
 module.exports = {
-    DeleteModal
+    DeleteModal,
+    EditConfirmationModal
 }

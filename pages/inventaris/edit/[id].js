@@ -8,7 +8,7 @@ import {connect} from "react-redux";
 import {inventarisDispatch} from "../../../redux/inventaris_redux";
 import {useRouter} from "next/router";
 import moment from "moment";
-
+import {EditConfirmationModal} from '../../../component/my_modal'
 const EditInventaris = (props) => {
     const router = useRouter()
     const { data: session } = useSession()
@@ -19,6 +19,14 @@ const EditInventaris = (props) => {
     const [biaya, setBiaya] = useState(0)
     const [keterangan, setKeterangan] = useState('')
     const [tanggal, setTanggal] = useState('')
+    const [confirmationVisibility, setConfirmationVisibility] = useState(false)
+
+    const showConfirmation = () => {
+        setConfirmationVisibility(true)
+    }
+    const hideConfirmation = () => {
+        setConfirmationVisibility(false)
+    }
 
     const onChangeName = (e) => {
         setNama(e.target.value)
@@ -56,6 +64,7 @@ const EditInventaris = (props) => {
             token: session.token,
             data: data
         })
+        hideConfirmation()
     }
     const getCategory = async () => {
         const data = await getAllCategories(session.token)
@@ -76,6 +85,7 @@ const EditInventaris = (props) => {
     },[props.status])
     return(
         <>
+            <EditConfirmationModal show={confirmationVisibility} hide={hideConfirmation} title={'Inventaris'} confirm={submit}/>
             <Card title='Edit Inventaris'>
                 {props.loading? (
                     <Row justify={'center'} align={'middle'}>
@@ -132,7 +142,7 @@ const EditInventaris = (props) => {
 
                             </Col>
                             <Col span={16}>
-                                <Button type='primary' onClick={submit}>Submit</Button>
+                                <Button type='primary' onClick={showConfirmation}>Submit</Button>
                             </Col>
                         </Row>
                     </>

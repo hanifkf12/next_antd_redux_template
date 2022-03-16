@@ -3,15 +3,11 @@ import {Card, Col, Input, Modal, Row, Select} from "antd";
 
 const AjukanPinjamanModal = (props) => {
     const [jumlah, setJumlah] = useState(0)
-    const [terbilang, setTerbilang] = useState('')
     const [masaPinjaman, setMasaPinjaman] = useState(0)
     const [keperluan, setKeperluan] = useState('')
     const [jaminan, setJaminan] = useState('')
     const onChangeJumlah = (e) => {
         setJumlah(e.target.value)
-    }
-    const onChangeTerbilang = (e) => {
-        setTerbilang(e.target.value)
     }
     const onChangeMasa = (e) => {
         setMasaPinjaman(e)
@@ -25,7 +21,6 @@ const AjukanPinjamanModal = (props) => {
     const submitData = () => {
         const data = {
             jumlah: parseInt(jumlah),
-            terbilang: terbilang,
             masaPinjaman: masaPinjaman,
             keperluan: keperluan,
             jaminan: jaminan
@@ -36,7 +31,6 @@ const AjukanPinjamanModal = (props) => {
     }
     const resetState = () => {
         setJumlah(0)
-        setTerbilang('')
         setMasaPinjaman(0)
         setKeperluan('')
         setJaminan('')
@@ -50,15 +44,6 @@ const AjukanPinjamanModal = (props) => {
                     </Col>
                     <Col span={18}>
                         <Input onChange={onChangeJumlah} placeholder={'Jumlah'} type={'number'} style={{width: '100%'}}/>
-                    </Col>
-
-                </Row>
-                <Row style={{marginTop: '20px', width: '100%'}} justify={"start"} align={'middle'}>
-                    <Col span={6}>
-                        Terbilang
-                    </Col>
-                    <Col span={18}>
-                        <Input onChange={onChangeTerbilang} placeholder={'Terbilang'}  style={{width: '100%'}}/>
                     </Col>
 
                 </Row>

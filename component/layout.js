@@ -19,12 +19,12 @@ import {
     CiCircleFilled, CloudOutlined, DesktopOutlined, DollarCircleOutlined, ExpandAltOutlined, ExportOutlined,
     FileOutlined, HddOutlined, HomeFilled, InfoCircleOutlined,
     LaptopOutlined, LogoutOutlined, MoneyCollectOutlined,
-    NotificationOutlined, PieChartOutlined, ShopOutlined,
+    NotificationOutlined, PieChartOutlined, SettingOutlined, ShopOutlined,
     TeamOutlined, UploadOutlined,
     UserOutlined, VideoCameraOutlined
 } from "@ant-design/icons";
 import {useRouter} from "next/router";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {signOut, useSession} from "next-auth/react";
 
 
@@ -35,6 +35,7 @@ export default function LayoutKu({children}) {
     const {Header, Content, Footer, Sider} = Layout;
     const [selected, setSelected] = useState('1')
     const [collapsed, setCollapsed] = useState(false)
+    const [urlPath, setUrlPath] = useState('')
     const {SubMenu} = Menu;
     const router = useRouter()
     // console.log('Path, ', router.pathname)
@@ -57,6 +58,10 @@ export default function LayoutKu({children}) {
             renderItem={item => <List.Item>{item}</List.Item>}
         />
     );
+    useEffect(()=>{
+        console.log('PATTH', router)
+        setUrlPath(router.pathname)
+    },[router.pathname])
     return (
         <>
             <Layout hasSider>
@@ -73,13 +78,14 @@ export default function LayoutKu({children}) {
                     <Row align='middle' justify='center' style={{height: '32px', margin: '16px'}}>
                             <Col><Typography.Title level={2} style={{color: 'white'}}>KAPOS</Typography.Title></Col>
                     </Row>
-                    <Menu theme="dark" mode="inline" defaultSelectedKeys={[router.pathname]} onClick={handleClick}>
+                    <Menu theme="dark" mode="inline" defaultSelectedKeys={[urlPath]} onClick={handleClick}>
                         <Menu.Item key="/" icon={<HomeFilled/>}>
                             Home
                         </Menu.Item>
                         <SubMenu key="anggota" icon={<UserOutlined />} title="Anggota">
                             <Menu.Item key="/anggota">Daftar Anggota</Menu.Item>
                             <Menu.Item key="/anggota/tambah">Tambah Anggota</Menu.Item>
+                            <Menu.Item key="/anggota/non-aktif">Anggota Non Aktif</Menu.Item>
                         </SubMenu>
                         {/*<SubMenu key="simpanan" icon={<FileOutlined />} title="Simpanan">*/}
                         {/*    <Menu.Item key="/simpanan/pokok">Simpanan Pokok</Menu.Item>*/}
@@ -98,6 +104,10 @@ export default function LayoutKu({children}) {
                         <SubMenu key="/inventaris2" icon={<HddOutlined />} title={"Inventaris"}>
                             <Menu.Item key="/inventaris">Daftar Inventaris</Menu.Item>
                             <Menu.Item key="/inventaris/tambah">Tambah Inventaris</Menu.Item>
+                        </SubMenu>
+                        <SubMenu key="/admin" icon={<SettingOutlined />} title={"Admin"}>
+                            <Menu.Item key="/admin/tutup-buku">Tutup Buku</Menu.Item>
+                            <Menu.Item key="/admin/master">Master Kategori</Menu.Item>
                         </SubMenu>
                         {/*<Menu.Item key="7" icon={<InfoCircleOutlined/>}>*/}
                         {/*    Pemasukan*/}

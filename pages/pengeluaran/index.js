@@ -10,6 +10,8 @@ const convertRupiah = require('rupiah-format')
 import 'moment/locale/id';
 import {EditOutlined} from "@ant-design/icons";
 import {groupFilter, searchFilter} from "../../utils/filterHelper";
+import {formatRupiah} from "../../utils/rupiahFormat";
+
 const Pengeluaran = (props) => {
     const router = useRouter()
     const { data: session } = useSession()
@@ -45,7 +47,7 @@ const Pengeluaran = (props) => {
             dataIndex: 'jumlah',
             key: 'jumlah',
             render: (text, record) => (
-                <>{convertRupiah.convert(record.jumlah)}</>
+                <>{formatRupiah(record.jumlah)}</>
             )
         },
         {

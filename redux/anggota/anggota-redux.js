@@ -25,7 +25,11 @@ const actionTypes = {
     LOAD_SIMPANAN_WAJIB_ANGGOTA: 'LOAD_SIMPANAN_WAJIB_ANGGOTA',
     SIMPANAN_WAJIB_ANGGOTA_LOADED: 'SIMPANAN_WAJIB_ANGGOTA_LOADED',
     LOAD_PINJAMAN_ANGGOTA: 'LOAD_PINJAMAN_ANGGOTA',
-    PINJAMAN_ANGGOTA_LOADED: 'PINJAMAN_ANGGOTA_LOADED'
+    PINJAMAN_ANGGOTA_LOADED: 'PINJAMAN_ANGGOTA_LOADED',
+    Load_ANGGOTA_NONACTIVE: 'Load_ANGGOTA_NONACTIVE',
+    ANGGOTA_NONACTIVE_LOADED: 'ANGGOTA_NONACTIVE_LOADED',
+    BAYAR_SIMPANAN_WAJIB: 'BAYAR_SIMPANAN_WAJIB',
+    SIMPANAN_WAJIB_DIBAYAR: 'SIMPANAN_WAJIB_DIBAYAR'
 }
 
 const initialState = {
@@ -110,6 +114,19 @@ export const reducer = function anggotaReducer(state = initialState, {type, payl
                 loading: false
             }
         }
+        case actionTypes.Load_ANGGOTA_NONACTIVE: {
+            return {
+                ...state,
+                loading: true
+            }
+        }
+        case actionTypes.ANGGOTA_NONACTIVE_LOADED: {
+            return {
+                ...state,
+                anggota: payload,
+                loading: false
+            }
+        }
         case actionTypes.RESET_ANGGOTA_STATE: {
             return initialState
         }
@@ -152,6 +169,14 @@ export const reducer = function anggotaReducer(state = initialState, {type, payl
                 loading: false
             }
         }
+        // case actionTypes.BAYAR_SIMPANAN_WAJIB: {
+        //     return {
+        //         ...state
+        //     }
+        // }
+        // case actionTypes.SIMPANAN_WAJIB_DIBAYAR: {
+        //
+        // }
         default: {
             return state
         }
@@ -244,6 +269,22 @@ export const anggotaDispatch = {
     pinjamanAnggotaLoaded: (data) => ({
         type: actionTypes.PINJAMAN_ANGGOTA_LOADED,
         payload: data
+    }),
+    loadAnggotaNonActive: (data) => ({
+        type: actionTypes.Load_ANGGOTA_NONACTIVE,
+        payload: data
+    }),
+    anggotaNonActiveLoaded: (data) => ({
+        type: actionTypes.ANGGOTA_NONACTIVE_LOADED,
+        payload: data
+    }),
+    bayarSimpananWajib: (data) => ({
+        type: actionTypes.BAYAR_SIMPANAN_WAJIB,
+        payload: data
+    }),
+    simpananWajibDibayar: (data) => ({
+        type: actionTypes.SIMPANAN_WAJIB_DIBAYAR,
+        payload: data
     })
 }
 
@@ -325,6 +366,16 @@ export function* saga() {
             console.log(e.message);
         }
     })
+    yield takeLatest(actionTypes.Load_ANGGOTA_NONACTIVE, function* ({payload}) {
+        try {
+            const {data: response} = yield guardInstance(payload.token).get(`${process.env.baseUrl}/api/v1/anggota/all/nonactive`)
+            console.log(response)
+            yield put(anggotaDispatch.anggotaNonActiveLoaded(response.data))
+        }catch (e) {
+            message.error(e.message);
+            console.log(e.message);
+        }
+    })
     yield takeLatest(actionTypes.UPDATE_ANGGOTA, function* ({payload}) {
         try {
             const {data: response} = yield guardInstance(payload.token).put(`${baseUrl}/api/v1/anggota/update/${payload.id}`, payload.data)
@@ -380,6 +431,20 @@ export function* saga() {
             const {data: response} = yield guardInstance(payload.token).get(`${baseUrl}/api/v1/pinjaman/user/${payload.id}`)
             console.log(response)
             yield put(anggotaDispatch.pinjamanAnggotaLoaded(response.data))
+        }catch (e) {
+            message.error(e.message);
+            console.log(e.response);
+        }
+    })
+
+    yield takeLatest(actionTypes.BAYAR_SIMPANAN_WAJIB, function* ({payload}) {
+        try {
+            const {data: response} = yield guardInstance(payload.token).put(`${baseUrl}/api/v1/simpanan/simpanan-wajib/update/${payload.simpananId}`, payload.data)
+            console.log(response)
+            if(response.status){
+                message.success('Pembayaran Simapanan Berhasil')
+            }
+            yield put(anggotaDispatch.loadSimpananWajibAnggota(payload))
         }catch (e) {
             message.error(e.message);
             console.log(e.response);

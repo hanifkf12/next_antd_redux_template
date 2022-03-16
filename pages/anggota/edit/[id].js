@@ -8,6 +8,7 @@ import {useSession} from "next-auth/react";
 import moment from "moment";
 import LayoutKu from "../../../component/layout";
 import {anggotaDispatch} from "../../../redux/anggota/anggota-redux";
+import {EditConfirmationModal} from '../../../component/my_modal'
 
 function EditAnggota(props) {
     const router = useRouter();
@@ -33,7 +34,14 @@ function EditAnggota(props) {
     const [statusAnggota, setStatusAnggota] = useState('')
 
     const [formLayout, setFormLayout] = useState('horizontal');
+    const [confirmationVisibility, setConfirmationVisibility] = useState(false)
 
+    const showConfirmation = () => {
+        setConfirmationVisibility(true)
+    }
+    const hideConfirmation = () => {
+        setConfirmationVisibility(false)
+    }
     const provinsiOptions = [];
     props.provinsi.map(data => {
         provinsiOptions.push(<Select.Option key={data.id} value={`${data.nama}|${data.id}`}>{data.nama}</Select.Option>)
@@ -172,10 +180,12 @@ function EditAnggota(props) {
             id: id,
             data: data
         })
+        hideConfirmation()
     }
 
     return (
         <>
+            <EditConfirmationModal show={confirmationVisibility} hide={hideConfirmation} title={'Pengeluaran'} confirm={submit}/>
             {props.loading ? (
                 <Row justify={'center'} align={'middle'}>
                     <Col>
@@ -351,7 +361,7 @@ function EditAnggota(props) {
                             <Col span={16}>
                                 <Select defaultValue={props.dataAnggota.status} onChange={onChangeStatusAnggota} style={{width: '50%'}} placeholder="Status Perkawinan">
                                     <Select.Option value="active">Aktif</Select.Option>
-                                    <Select.Option value="tidak_aktif">Tidak Aktif</Select.Option>
+                                    <Select.Option value="non-active">Tidak Aktif</Select.Option>
                                 </Select>
                             </Col>
                         </Row>
@@ -360,7 +370,7 @@ function EditAnggota(props) {
 
                             </Col>
                             <Col span={16}>
-                                <Button type='primary' onClick={submit}>Submit</Button>
+                                <Button type='primary' onClick={showConfirmation}>Submit</Button>
                             </Col>
                         </Row>
 

@@ -1,3 +1,5 @@
+
+
 import {
     CiCircleFilled,
     DeleteOutlined,
@@ -43,7 +45,7 @@ import {anggotaDispatch} from "../../redux/anggota/anggota-redux";
 import convertRupiah from "rupiah-format";
 import {formatRupiah} from "../../utils/rupiahFormat";
 
-function Tes(props) {
+function NonActive(props) {
     const {data: session} = useSession()
     const router = useRouter()
     const axios = guardInstance(session.token)
@@ -181,7 +183,7 @@ function Tes(props) {
     }
     console.log('search, ', router.query)
     useEffect(async () => {
-        props.loadAnggota({token: session.token})
+        props.loadAnggotaNonActive({token: session.token})
         if (!router.query) {
             router.push({
                 pathname: '',
@@ -192,7 +194,7 @@ function Tes(props) {
     return (
         <>
             <DeleteModal title='Konfirmasi Hapus Anggota' confirm={confirmDelete} show={modal} hide={hideModal}/>
-            <Card title='Daftar Anggota Aktif Koperasi'>
+            <Card title='Daftar Anggota Non Aktif Koperasi'>
                 <Row>
                     <Col span={5}>
                         <Input.Search onPressEnter={onSearch} placeholder={'Search'} onSearch={onSearch2}/>
@@ -242,7 +244,7 @@ const mapStateToProps = (state) => {
         loading: state.anggota.loading
     }
 }
-Tes.getLayout = function getLayout(page) {
+NonActive.getLayout = function getLayout(page) {
     return (
         <LayoutKu>
             {page}
@@ -250,7 +252,7 @@ Tes.getLayout = function getLayout(page) {
     )
 }
 
-Tes.auth = true
+NonActive.auth = true
 
-export default connect(mapStateToProps, anggotaDispatch)(Tes)
+export default connect(mapStateToProps, anggotaDispatch)(NonActive)
 

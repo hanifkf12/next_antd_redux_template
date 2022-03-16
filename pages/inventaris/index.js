@@ -11,8 +11,8 @@ import {useRouter} from "next/router";
 import {searchFilter} from "../../utils/filterHelper";
 import {inventarisDispatch} from "../../redux/inventaris_redux";
 import {connect} from "react-redux";
-import convertRupiah from "rupiah-format";
-
+import {formatRupiah} from "../../utils/rupiahFormat";
+import Link from "next/link";
 const Inventaris = (props) => {
     const {data: session} = useSession()
     const router = useRouter()
@@ -52,7 +52,7 @@ const Inventaris = (props) => {
             dataIndex: 'biaya',
             key: 'biaya',
             render: (text, record) => (
-                <>{convertRupiah.convert(record.biaya)}</>
+                <>{formatRupiah(record.biaya)}</>
             )
         },
         {
@@ -60,7 +60,7 @@ const Inventaris = (props) => {
             dataIndex: 'tanggal',
             key: 'tanggal',
             render: tanggal => (
-                <>{moment(tanggal).format('ll')}</>
+                <>{moment(tanggal).format('LL')}</>
             )
         },
         {
@@ -69,10 +69,10 @@ const Inventaris = (props) => {
             align: 'center',
             render: (text, record) => (
                 <Space size="small">
-                    <Button onClick={() => {
-                        router.push(`/inventaris/edit/${record.id}`)
-                    }} style={{color: 'white',
-                        backgroundColor: 'forestgreen'}} icon={<EditOutlined/>}/>
+                    <Link href={`/inventaris/edit/${record.id}`}>
+                        <Button style={{color: 'white',
+                            backgroundColor: 'forestgreen'}} icon={<EditOutlined/>}/>
+                    </Link>
                     {/*<Button shape={'round'} style={{backgroundColor: '#589d45', color: 'white'}} icon={<EyeOutlined/>}/>*/}
                     <Button onClick={() => showModal(record)}
                             style={{backgroundColor: 'red', color: 'white'}} icon={<DeleteOutlined/>}/>

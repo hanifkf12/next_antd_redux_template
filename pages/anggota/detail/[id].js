@@ -13,6 +13,8 @@ import BayarSimpananWajibModal from "../../../component/bayar_simpanan_modal";
 import BayarAngsuranModal from "../../../component/bayar_angsuran_modal";
 import AjukanPinjamanModal from "../../../component/ajukan_pinjaman_modal";
 import {pinjamanDispatch} from "../../../redux/pinjaman_redux";
+import {formatRupiah, nominalToWord} from "../../../utils/rupiahFormat";
+import Link from "next/link";
 const DetailUser = (props) => {
     const router = useRouter()
     const {data: session} = useSession()
@@ -32,7 +34,7 @@ const DetailUser = (props) => {
         const newData = {
             user_id: parseInt(id),
             jumlah_diajukan: data.jumlah,
-            jumlah_diajukan_terbilang: data.terbilang,
+            jumlah_diajukan_terbilang: nominalToWord(data.jumlah),
             masa_pinjaman: data.masaPinjaman,
             jaminan: data.jaminan,
             keperluan: data.keperluan,
@@ -60,27 +62,23 @@ const DetailUser = (props) => {
         setBayarData({})
     }
     const submitBayarSimpanan = (data) => {
-        console.log(data)
+        const simpananData = {
+            status: "dibayar",
+            jumlah: data.jumlah
+        }
+        const payload = {
+            token: session.token,
+            data: simpananData,
+            id: id,
+            simpananId: simpananId
+        }
+        console.log(payload, 'sdasdasdas')
+        props.bayarSimpananWajib(payload)
         hideBayarSimpanan()
     }
-    const [bayarAngsuranVisibility, setBayarAngsuranVisibility] = useState(false)
     const [pinjamanId, setPinjamanId] = useState(0)
     const [pinjamanData, setPinjamanData] = useState({})
-    const showBayarAngsuran = (data) => {
-        console.log(data)
-        setBayarAngsuranVisibility(true)
-        setPinjamanId(data.id)
-        setPinjamanData(data)
-    }
-    const hideBayarAngsuran = () => {
-        setBayarAngsuranVisibility(false)
-        setPinjamanId(0)
-        setPinjamanData({})
-    }
-    const submitBayarAngsuran = (data) => {
-        console.log(data)
-        hideBayarAngsuran()
-    }
+
     const columns = [
         {
             title: 'Bulan',
@@ -99,7 +97,7 @@ const DetailUser = (props) => {
             key: 'jumlah',
             render: (text, record) => (
                 <>
-                    {convertRupiah.convert(record.jumlah)}
+                    {formatRupiah(record.jumlah)}
                 </>
             )
         },
@@ -132,7 +130,7 @@ const DetailUser = (props) => {
             key: 'jumlah_disetujui',
             render: (text, record) => (
                 <>
-                    {convertRupiah.convert(record.jumlah_disetujui)}
+                    {formatRupiah(record.jumlah_disetujui)}
                 </>
             )
         },
@@ -163,7 +161,7 @@ const DetailUser = (props) => {
             dataIndex: 'angsuran_pokok',
             key: 'angsuran_pokok',
             render: (text, record) => (
-                <>{convertRupiah.convert(record.angsuran_pokok + record.bunga_per_bulan)}</>
+                <>{formatRupiah(record.angsuran_pokok + record.bunga_per_bulan)}</>
             )
         },
         {
@@ -173,18 +171,23 @@ const DetailUser = (props) => {
             align: 'center',
             render: (text, record) => (
                 <>
-                    <Button onClick={()=>{
-                        showBayarAngsuran(record)
-                    }} type={'primary'} disabled={record.status==='lunas'}>Bayar</Button>
+                    <Link href={`/pinjaman/detail/${record.id}`}>
+                        <Button  type={'primary'}>Lihat</Button>
+                    </Link>
                 </>
             )
         },
     ]
     const onChangeDateSimpanan = (t, s) => {
-        console.log(t.format('LL'))
-        const dataSplit = t.format('LL').split(' ')
-        setTahunSimpanan(dataSplit[2])
-        setBulanSimpanan(dataSplit[1])
+        if(t){
+            console.log(t.format('LL'))
+            const dataSplit = t.format('LL').split(' ')
+            setTahunSimpanan(dataSplit[2])
+            setBulanSimpanan(dataSplit[1])
+        }else {
+            setTahunSimpanan('')
+            setBulanSimpanan('')
+        }
     }
 
     useEffect(() => {
@@ -204,8 +207,7 @@ const DetailUser = (props) => {
     return (
         <>
             <AjukanPinjamanModal show={viewAjukanPinjaman} submit={submitAjukanPinjaman} hide={hideAjukanPinjaman} />
-            <BayarSimpananWajibModal data={bayarData}show={bayarSimpananVisibility} submit={submitBayarAngsuran} hide={hideBayarSimpanan}/>
-            <BayarAngsuranModal data={pinjamanData} show={bayarAngsuranVisibility} submit={submitBayarAngsuran} hide={hideBayarAngsuran}/>
+            <BayarSimpananWajibModal data={bayarData}show={bayarSimpananVisibility} submit={submitBayarSimpanan} hide={hideBayarSimpanan}/>
             {props.loading ? (
                 <Row justify={'center'} align={'middle'}>
                     <Col>

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
+    "@develoka/angka-terbilang-js": "^1.4.2",
     "antd": "^4.18.5",
     "axios": "^0.25.0",
     "moment": "^2.29.1",

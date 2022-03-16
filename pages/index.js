@@ -18,14 +18,14 @@ export default function Home(props) {
       <Col span={12} >
         <Row>
           <Col span={24}>
-            <Card title={'Iuran Wajib'}>
+            <Card title={'Simpanan Wajib'}>
 
             </Card>
           </Col>
         </Row>
         <Row style={{marginTop: '6px'}}>
           <Col span={24}>
-            <Card title={'Iuran Wajib'}>
+            <Card title={'Simpanan Pokok'}>
 
             </Card>
           </Col>
@@ -34,7 +34,14 @@ export default function Home(props) {
       <Col span={12}>
         <Row>
           <Col span={24}>
-            <Card title={'Iuran Pokok'} >
+            <Card title={'Pemasukan Pinjaman'} >
+
+            </Card>
+          </Col>
+        </Row>
+        <Row style={{marginTop: '6px'}}>
+          <Col span={24}>
+            <Card title={'Pemasukan Pinjaman'} >
 
             </Card>
           </Col>

@@ -6,8 +6,10 @@ import {connect} from "react-redux";
 import {pinjamanDispatch} from "../../redux/pinjaman_redux";
 import {useSession} from "next-auth/react";
 import convertRupiah from "rupiah-format";
-import {groupFilter, searchFilter, searchFilter2} from "../../utils/filterHelper";
+import {groupFilter, pinjamanFilter, searchFilter, searchFilter2} from "../../utils/filterHelper";
 import moment from "moment";
+import {formatRupiah} from "../../utils/rupiahFormat";
+import Link from 'next/link'
 
 const Pinjaman = (props) => {
     const router = useRouter()
@@ -19,29 +21,54 @@ const Pinjaman = (props) => {
         // const newFilter = filter;
         // filter.search = e.target.value;
         // setFilter(newFilter)
+        const newFilter = filter;
+        newFilter.search = e.target.value;
+        setFilter(newFilter)
+        console.log('new FIlter, ', newFilter)
         router.push({
             pathname: '',
-            search: new URLSearchParams({search: e.target.value})
+            search: new URLSearchParams(filter)
         })
     }
+    const [filter, setFilter] = useState({
+        search: '',
+        tahun: '2022',
+        status: ''
+    })
     const onSearch2 = (e) => {
         console.log(e)
+        const newFilter = filter;
+        newFilter.search = e;
+        setFilter(newFilter)
+        console.log('new FIlter, ', newFilter)
         router.push({
             pathname: '',
-            search: new URLSearchParams({search: e})
+            search: new URLSearchParams(filter)
         })
     }
-    const onChangeStatus  = (e) => {
+    const onChangeStatus = (e) => {
         console.log(e)
         setFilterStatus(e)
+        const newFilter = filter;
+        newFilter.status = e;
+        setFilter(newFilter)
+        router.push({
+            pathname: '',
+            search: new URLSearchParams(filter)
+        })
     }
     console.log(new Date().getFullYear().toString())
-    const onChangeTahun = (e,t) => {
-        if(e){
-            setFilterTahun(e.format('YYYY'))
-        }else {
-            setFilterTahun(new Date().getFullYear().toString())
-        }
+    const onChangeTahun = (e, t) => {
+        console.log(t)
+        console.log('RR', e)
+        const newFilter = filter;
+        newFilter.tahun = e.format('YYYY');
+        setFilter(newFilter)
+        router.push({
+            pathname: '',
+            search: new URLSearchParams(filter)
+        })
+        // console.log(filterTahun)
     }
     const columns = [
         {
@@ -55,7 +82,7 @@ const Pinjaman = (props) => {
             dataIndex: 'jumlah_disetujui',
             key: 'jumlah_disetujui',
             render: (tex, record) => (
-                <>{convertRupiah.convert(record.jumlah_disetujui)}</>
+                <>{formatRupiah(record.jumlah_disetujui)}</>
             )
         },
         {
@@ -63,7 +90,7 @@ const Pinjaman = (props) => {
             dataIndex: 'status',
             key: 'status',
             render: (tex, record) => (
-                <>{record.status === 'lunas'? 'Lunas' : 'Belum Lunas'}</>
+                <>{record.status === 'lunas' ? 'Lunas' : 'Belum Lunas'}</>
             )
         },
         {
@@ -79,7 +106,7 @@ const Pinjaman = (props) => {
             dataIndex: 'angsuran_pokok',
             key: 'angsuran_pokok',
             render: (tex, record) => (
-                <>{convertRupiah.convert(record.angsuran_pokok)}</>
+                <>{formatRupiah(record.angsuran_pokok)}</>
             )
         },
         {
@@ -87,7 +114,15 @@ const Pinjaman = (props) => {
             dataIndex: 'bunga_per_bulan',
             key: 'bunga_per_bulan',
             render: (tex, record) => (
-                <>{convertRupiah.convert(record.bunga_per_bulan)}</>
+                <>{formatRupiah(record.bunga_per_bulan)}</>
+            )
+        },
+        {
+            title: 'Angsuran (Pokok + Bunga) /Bulan',
+            dataIndex: 'bunga_per_bulan',
+            key: 'bunga_per_bulan',
+            render: (tex, record) => (
+                <>{formatRupiah(record.bunga_per_bulan + record.angsuran_pokok)}</>
             )
         },
         {
@@ -96,17 +131,24 @@ const Pinjaman = (props) => {
             align: 'center',
             render: (text, record) => (
                 <Space size="small">
-                    <Button style={{backgroundColor: 'forestgreen', color: 'white'}}>Review</Button>
+                    {record.status==='belum_lunas' && (
+                        <Link href={`/pinjaman/detail/${record.id}`}>
+                            <Button style={{backgroundColor: 'royalblue', color: 'white'}}>Edit</Button>
+                        </Link>
+                    )}
+                    <Link href={`/pinjaman/detail/${record.id}`}>
+                        <Button style={{backgroundColor: 'forestgreen', color: 'white'}}>Lihat</Button>
+                    </Link>
                 </Space>
             ),
         },
     ]
-    console.log(props.pinjamanBerjalan)
+    // console.log(props.pinjamanBerjalan)
     useEffect(() => {
         props.loadPinjamanBerjalan({
             token: session.token
         })
-    }, [])
+    }, [router.query])
     return (
         <>
             <Card title='Daftar Pinjaman Berjalan'>
@@ -115,12 +157,14 @@ const Pinjaman = (props) => {
                         <Input.Search onPressEnter={onSearch} placeholder={'Search'} onSearch={onSearch2}/>
                     </Col>
                     <Col span={3}>
-                        <DatePicker defaultValue={moment(filterTahun)} onChange={onChangeTahun} style={{width: '100%'}} placeHolder={'Pilih Tahun'} locale={'id'} picker={'year'}/>
+                        <DatePicker defaultValue={moment(filterTahun)} onChange={onChangeTahun} style={{width: '100%'}}
+                                    placeHolder={'Pilih Tahun'} locale={'id'} picker={'year'}/>
 
 
                     </Col>
                     <Col span={3}>
-                        <Select onChange={onChangeStatus} placeholder={'Pilih Status'} defaultValue={''} style={{width: '100%'}}>
+                        <Select onChange={onChangeStatus} placeholder={'Pilih Status'} defaultValue={''}
+                                style={{width: '100%'}}>
                             <Select.Option value={''}>Semua</Select.Option>
                             <Select.Option value={'lunas'}>Lunas</Select.Option>
                             <Select.Option value={'belum_lunas'}>Belum Lunas</Select.Option>
@@ -139,7 +183,8 @@ const Pinjaman = (props) => {
                 ) : (
                     <Table columns={columns} rowKey={'id'}
                            style={{marginTop: '20px'}}
-                           dataSource={groupFilter(searchFilter2(props.pinjamanBerjalan,'user','name',router.query.search), 'status', 'tahun', filterStatus, filterTahun)}
+                           // dataSource={groupFilter(searchFilter2(props.pinjamanBerjalan, 'user', 'name', router.query.search), 'status', 'tahun', filterStatus, filterTahun)}
+                           dataSource={pinjamanFilter(props.pinjamanBerjalan,router.query.search,filterTahun,filterStatus)}
                     />
                 )}
             </Card>

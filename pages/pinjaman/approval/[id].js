@@ -7,18 +7,20 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import moment from "moment";
 import 'moment/locale/id'
+import {nominalToWord} from "../../../utils/rupiahFormat";
+
 const ApprovalPinjamanDetail = (props) => {
     const router = useRouter()
     const {data: session} = useSession()
     const {id} = router.query
-    const [jumlahDisetujui, setJumlahDisetujui] = useState(0)
+    const [jumlahDisetujui, setJumlahDisetujui] = useState(props.pinjamanData.jumlah_diajukan)
     const [disetujuiTerbilang, setDisetujuiTerbilang] = useState('')
     const [admin, setAdmin] = useState(0)
     const [jumlahAdmin, setJumlahAdmin] = useState(0.0)
     const [bunga, setBunga] = useState(0)
     const [jumlahBunga, setJumlahBunga] = useState(0)
     const [bungaPerBulan, setBungaPerBulan] = useState(0)
-    const [angsuranPokok, setAngsuranPokok] = useState(0)
+    const [angsuranPokok, setAngsuranPokok] = useState(parseFloat((props.pinjamanData.jumlah_diajukan / props.pinjamanData.masa_pinjaman).toFixed(0)))
     const [angsuranPokokTerbilang, setAngsuranPokokTerbilang] = useState('')
     const onChangeJumlah = (e) => {
         const jumlah = parseFloat(e.target.value)
@@ -43,7 +45,7 @@ const ApprovalPinjamanDetail = (props) => {
         console.log(jumlahBunga, 'total bunga')
         console.log(bungaPerBulan, 'bunga/bulan')
     }
-    const onChangeAngsuranPokokTerbilang = (e)=>{
+    const onChangeAngsuranPokokTerbilang = (e) => {
         setAngsuranPokokTerbilang(e.target.value)
     }
     const onChangeDisetujuiTerbilang = (e) => {
@@ -52,13 +54,13 @@ const ApprovalPinjamanDetail = (props) => {
     const submit = () => {
         const currentDate = new Date()
         const diterimaDate = moment(currentDate).format('YYYY-MM-DD')
-        const startDate = moment(currentDate).add(1,'months').format('YYYY-MM-DD')
+        const startDate = moment(currentDate).add(1, 'months').format('YYYY-MM-DD')
         console.log(startDate)
-        const endDate = moment(startDate).add(props.pinjamanData.masa_pinjaman,'months').format('YYYY-MM-DD')
+        const endDate = moment(startDate).add(props.pinjamanData.masa_pinjaman, 'months').format('YYYY-MM-DD')
         console.log(endDate)
         const data = {
             jumlah_disetujui: jumlahDisetujui,
-            jumlah_disetujui_terbilang: disetujuiTerbilang,
+            jumlah_disetujui_terbilang: nominalToWord(jumlahDisetujui),
             administrasi: admin,
             biaya_administrasi: jumlahAdmin,
             bunga: bunga,
@@ -70,7 +72,7 @@ const ApprovalPinjamanDetail = (props) => {
             diterima_tanggal: diterimaDate,
             angsuran_pertama: startDate,
             angsuran_terakhir: endDate,
-            angsuran_pokok_terbilang: angsuranPokokTerbilang,
+            angsuran_pokok_terbilang: nominalToWord(angsuranPokok + bungaPerBulan),
             tahun: new Date().getFullYear().toString()
         }
         console.log(data)
@@ -88,11 +90,11 @@ const ApprovalPinjamanDetail = (props) => {
             token: session.token
         })
     }, [])
-    useEffect(()=>{
-        if(props.status){
+    useEffect(() => {
+        if (props.status) {
             router.replace('/pinjaman/approval/daftar')
         }
-    },[props.status])
+    }, [props.status])
     return (
         <>
             <Card title={'Review Pengajuan Pinjaman'}>
@@ -124,16 +126,16 @@ const ApprovalPinjamanDetail = (props) => {
                             </Col>
 
                         </Row>
-                        <Row style={{marginTop: '20px'}} justify={"start"} align={'middle'}>
-                            <Col span={3}>
-                                Diajukan Terbilang
-                            </Col>
-                            <Col span={8}>
-                                <Input disabled={true} defaultValue={props.pinjamanData.jumlah_diajukan_terbilang}
-                                       placeholder={'Terbilang'} style={{width: '100%'}}/>
-                            </Col>
+                        {/*<Row style={{marginTop: '20px'}} justify={"start"} align={'middle'}>*/}
+                        {/*    <Col span={3}>*/}
+                        {/*        Diajukan Terbilang*/}
+                        {/*    </Col>*/}
+                        {/*    <Col span={8}>*/}
+                        {/*        <Input disabled={true} defaultValue={props.pinjamanData.jumlah_diajukan_terbilang}*/}
+                        {/*               placeholder={'Terbilang'} style={{width: '100%'}}/>*/}
+                        {/*    </Col>*/}
 
-                        </Row>
+                        {/*</Row>*/}
                         <Row style={{marginTop: '20px'}} justify={"start"} align={'middle'}>
                             <Col span={3}>
                                 Masa Pinjaman
@@ -149,20 +151,20 @@ const ApprovalPinjamanDetail = (props) => {
                                 Jumlah Disetujui
                             </Col>
                             <Col span={8}>
-                                <Input onChange={onChangeJumlah} placeholder={'Jumlah Disetujui'} type={'number'}
+                                <Input onChange={onChangeJumlah} placeholder={'Jumlah Disetujui'} defaultValue={props.pinjamanData.jumlah_diajukan} type={'number'}
                                        style={{width: '100%'}}/>
                             </Col>
 
                         </Row>
-                        <Row style={{marginTop: '20px'}} justify={"start"} align={'middle'}>
-                            <Col span={3}>
-                                Disetujui Terbilang
-                            </Col>
-                            <Col span={8}>
-                                <Input onChange={onChangeDisetujuiTerbilang} placeholder={'Terbilang'} style={{width: '100%'}}/>
-                            </Col>
+                        {/*<Row style={{marginTop: '20px'}} justify={"start"} align={'middle'}>*/}
+                        {/*    <Col span={3}>*/}
+                        {/*        Disetujui Terbilang*/}
+                        {/*    </Col>*/}
+                        {/*    <Col span={8}>*/}
+                        {/*        <Input onChange={onChangeDisetujuiTerbilang} placeholder={'Terbilang'} style={{width: '100%'}}/>*/}
+                        {/*    </Col>*/}
 
-                        </Row>
+                        {/*</Row>*/}
                         <Row style={{marginTop: '20px'}} justify={"start"} align={'middle'}>
                             <Col span={3}>
                                 Administrasi
@@ -237,16 +239,16 @@ const ApprovalPinjamanDetail = (props) => {
                             </Col>
 
                         </Row>
-                        <Row style={{marginTop: '20px'}} justify={"start"} align={'middle'}>
-                            <Col span={3}>
-                                Angsuran Per Bulan Terbilang
-                            </Col>
-                            <Col span={8}>
-                                <Input onChange={onChangeAngsuranPokokTerbilang} placeholder={'Angsuran Per Bulan Terbilang'}
-                                       style={{width: '100%'}}/>
-                            </Col>
+                        {/*<Row style={{marginTop: '20px'}} justify={"start"} align={'middle'}>*/}
+                        {/*    <Col span={3}>*/}
+                        {/*        Angsuran Per Bulan Terbilang*/}
+                        {/*    </Col>*/}
+                        {/*    <Col span={8}>*/}
+                        {/*        <Input onChange={onChangeAngsuranPokokTerbilang} placeholder={'Angsuran Per Bulan Terbilang'}*/}
+                        {/*               style={{width: '100%'}}/>*/}
+                        {/*    </Col>*/}
 
-                        </Row>
+                        {/*</Row>*/}
                         <Row style={{marginTop: '20px'}} justify={"start"} align={'middle'}>
                             <Col span={3}>
                             </Col>

@@ -12,7 +12,9 @@ const actionTypes = {
     ADD_NEW_PINJAMAN: 'ADD_NEW_PINJAMAN',
     NEW_PINJAMAN_ADDED: 'NEW_PINJAMAN_ADDED',
     PINJAMAN_BY_ID: 'PINJAMAN_BY_ID',
-    PINJAMAN_BY_ID_LOADED: 'PINJAMAN_BY_ID_LOADED'
+    PINJAMAN_BY_ID_LOADED: 'PINJAMAN_BY_ID_LOADED',
+    BAYAR_ANGSURAN: 'BAYAR_ANGSURAN',
+    ANGSURAN_DIBAYAR: 'ANGSURAN_DIBAYAR'
 }
 
 const initialState = {
@@ -93,6 +95,18 @@ export const reducer = function (state = initialState, {type, payload}){
                 pinjamanData: payload
             }
         }
+        case actionTypes.BAYAR_ANGSURAN: {
+            return {
+                ...state,
+                loading: true
+            }
+        }
+        case actionTypes.ANGSURAN_DIBAYAR: {
+            return {
+                ...state,
+                loading: false,
+            }
+        }
         default : {
             return state
         }
@@ -139,6 +153,14 @@ export const pinjamanDispatch = {
     pinjamanByIdLoaded: (data) => ({
         type: actionTypes.PINJAMAN_BY_ID_LOADED,
         payload: data
+    }),
+    bayarAngsuran: (data) => ({
+        type: actionTypes.BAYAR_ANGSURAN,
+        payload: data
+    }),
+    angsuranDibayar: (data) => ({
+        type: actionTypes.ANGSURAN_DIBAYAR,
+        payload: data
     })
 }
 
@@ -176,7 +198,7 @@ export function* saga(){
             }else {
                 message.warn(response.message)
             }
-            yield put(pinjamanDispatch.newPinjamanAdded(response.status))
+            // yield put(pinjamanDispatch.newPinjamanAdded(response.status))
         }catch (e) {
             message.error(e.message);
             console.log(e.response);
@@ -201,6 +223,22 @@ export function* saga(){
             const {data: response} = yield guardInstance(payload.token).get(`${baseUrl}/api/v1/pinjaman/all/single/${payload.id}`)
             console.log(response)
             yield put(pinjamanDispatch.pinjamanByIdLoaded(response.data))
+        }catch (e) {
+            message.error(e.message);
+            console.log(e.response);
+        }
+    })
+
+    yield takeLatest(actionTypes.BAYAR_ANGSURAN, function* ({payload}) {
+        try {
+            const {data: response} = yield guardInstance(payload.token).post(`${baseUrl}/api/v1/pinjaman/bayar/${payload.id}/${payload.angsuranId}`, payload.data)
+            console.log(response);
+            if(response.status){
+                message.success('Pembayaran Berhasil')
+            }else {
+                message.error(response.message)
+            }
+            yield put(pinjamanDispatch.pinjamanById(payload))
         }catch (e) {
             message.error(e.message);
             console.log(e.response);

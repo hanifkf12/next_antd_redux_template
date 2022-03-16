@@ -7,10 +7,11 @@ import {pinjamanDispatch} from "../../../redux/pinjaman_redux";
 import {connect} from "react-redux";
 import {useSession} from "next-auth/react";
 import convertRupiah from "rupiah-format";
+import Link from 'next/link'
 
 const ApprovalPinjaman = (props) => {
     const router = useRouter()
-    const { data: session } = useSession()
+    const {data: session} = useSession()
     const onSearch = (e) => {
         console.log(e.target.value)
         // const newFilter = filter;
@@ -31,7 +32,7 @@ const ApprovalPinjaman = (props) => {
     const columns = [
         {
             title: 'Nama',
-            dataIndex: ['user','name'],
+            dataIndex: ['user', 'name'],
             key: 'name',
             // render: c => <a>{c}</a>,
         },
@@ -59,19 +60,19 @@ const ApprovalPinjaman = (props) => {
             align: 'center',
             render: (text, record) => (
                 <Space size="small">
-                    <Button onClick={()=>{
-                        router.push(`/pinjaman/approval/${record.id}`)
-                    }} style={{backgroundColor:'forestgreen', color:'white'}}>Review</Button>
+                    <Link href={`/pinjaman/approval/${record.id}`}>
+                        <Button style={{backgroundColor: 'forestgreen', color: 'white'}}>Review</Button>
+                    </Link>
                 </Space>
             ),
         },
     ]
-    useEffect(()=>{
+    useEffect(() => {
         props.loadPendingPinjaman({
             token: session.token
         })
-    },[])
-    return(
+    }, [])
+    return (
         <>
             <Card title='Daftar Pengajuan Pinjaman'>
                 {/*<Row gutter={6} justify={'start'}>*/}
@@ -110,7 +111,7 @@ const ApprovalPinjaman = (props) => {
     )
 }
 ApprovalPinjaman.getLayout = function getLayout(page) {
-    return(
+    return (
         <LayoutKu>
             {page}
         </LayoutKu>
@@ -118,7 +119,7 @@ ApprovalPinjaman.getLayout = function getLayout(page) {
 }
 
 const mapStateToProps = (state) => {
-    return{
+    return {
         loading: state.pinjaman.loading,
         pendingPinjaman: state.pinjaman.pendingPinjaman,
         status: state.pinjaman.status

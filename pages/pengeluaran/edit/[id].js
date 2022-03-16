@@ -7,6 +7,7 @@ import {useSession} from "next-auth/react";
 import {pengeluaranDispatch} from "../../../redux/pengeluaran_redux";
 import {connect} from "react-redux";
 import moment from "moment";
+import {EditConfirmationModal} from '../../../component/my_modal'
 
 const EditPengeluaran = (props) => {
     const router = useRouter()
@@ -16,7 +17,14 @@ const EditPengeluaran = (props) => {
     const [jumlah, setJumlah] = useState(0)
     const [keterangan, setKeterangan] = useState('')
     const [tanggal, setTanggal] = useState('')
+    const [confirmationVisibility, setConfirmationVisibility] = useState(false)
 
+    const showConfirmation = () => {
+        setConfirmationVisibility(true)
+    }
+    const hideConfirmation = () => {
+        setConfirmationVisibility(false)
+    }
     const onChangeUraian = (e) => {
         setUraian(e.target.value)
     }
@@ -44,6 +52,7 @@ const EditPengeluaran = (props) => {
             id: id,
             data: data
         })
+        hideConfirmation()
     }
     useEffect(()=>{
         props.pengeluaranById({
@@ -58,6 +67,7 @@ const EditPengeluaran = (props) => {
     }, [props.status])
     return(
         <>
+            <EditConfirmationModal show={confirmationVisibility} hide={hideConfirmation} title={'Pengeluaran'} confirm={submit}/>
             <Card title='Edit Data Pengeluaran'>
                 {props.loading? (
                     <Row justify={'center'} align={'middle'}>
@@ -104,7 +114,7 @@ const EditPengeluaran = (props) => {
 
                             </Col>
                             <Col span={16}>
-                                <Button type='primary' onClick={submit}>Submit</Button>
+                                <Button type='primary' onClick={showConfirmation}>Submit</Button>
                             </Col>
                         </Row>
                     </>
