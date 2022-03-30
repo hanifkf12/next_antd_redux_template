@@ -12,14 +12,21 @@ const actionTypes = {
     INVENTARIS_LOADED: 'INVENTARIS_LOADED',
     DELETE_INVENTARIS: 'DELETE_INVENTARIS',
     INVENTARIS_BY_ID: 'INVENTARIS_BY_ID',
-    INVENTARIS_BY_ID_LOADED: 'INVENTARIS_BY_ID_LOADED'
+    INVENTARIS_BY_ID_LOADED: 'INVENTARIS_BY_ID_LOADED',
+    LOAD_MASTER_KATEGORI: 'LOAD_MASTER_KATEGORI',
+    MASTER_KATEGORI_LOADED: 'MASTER_KATEGORI_LOADED',
+    TAMBAH_KATEGORI: 'TAMBAH_KATEGORI',
+    KATEGORI_DITAMBAH: 'KATEGORI_DITAMBAH',
+    DELETE_KATEGORI: 'DELETE_KATEGORI',
+    UPDATE_KATEGORI: 'UPDATE_KATEGORI'
 }
 
 const initialState = {
     loading: false,
     status: false,
     inventaris: [],
-    inventarisData: {}
+    inventarisData: {},
+    kategoriLists: []
 }
 
 export const reducer = function inventarisReducer(state = initialState, {type, payload}) {
@@ -79,6 +86,19 @@ export const reducer = function inventarisReducer(state = initialState, {type, p
         case actionTypes.RESET_INVENTARIS_STATE: {
             return initialState
         }
+        case actionTypes.LOAD_MASTER_KATEGORI: {
+            return {
+                ...state,
+                loading: true
+            }
+        }
+        case actionTypes.MASTER_KATEGORI_LOADED: {
+            return {
+                ...state,
+                loading: false,
+                kategoriLists: payload
+            }
+        }
         default: {
             return state
         }
@@ -124,6 +144,30 @@ export const inventarisDispatch = {
     inventarisByIdLoaded: (data) => ({
         type: actionTypes.INVENTARIS_BY_ID_LOADED,
         payload: data
+    }),
+    loadMasterKategori: (data) => ({
+        type: actionTypes.LOAD_MASTER_KATEGORI,
+        payload: data
+    }),
+    masterKategoriLoaded: (data) => ({
+        type: actionTypes.MASTER_KATEGORI_LOADED,
+        payload: data
+    }),
+    tambahKategori: (data) => ({
+        type: actionTypes.TAMBAH_KATEGORI,
+        payload: data
+    }),
+    kategoriDitambah: (data) => ({
+        type: actionTypes.KATEGORI_DITAMBAH,
+        payload: data
+    }),
+    deleteKAtegori: (data) => ({
+        type: actionTypes.DELETE_KATEGORI,
+        payload: data
+    }),
+    updateKategori: (data) => ({
+        type: actionTypes.UPDATE_KATEGORI,
+        payload: data
     })
 }
 
@@ -157,7 +201,7 @@ export function* saga() {
                 message.success('Data Berhasil Di Simpan')
                 yield put(inventarisDispatch.inventarisSaved(response.status))
                 yield put(inventarisDispatch.resetInventarisState())
-            }else {
+            } else {
                 message.error(response.message)
             }
 
@@ -185,11 +229,57 @@ export function* saga() {
                 message.success('Data Berhasil Di Update')
                 yield put(inventarisDispatch.inventarisUpdated(response.status))
                 yield put(inventarisDispatch.resetInventarisState())
-            }else {
+            } else {
                 message.error(response.message)
             }
 
         } catch (e) {
+            message.error(e.message);
+            console.log(e.response);
+        }
+    })
+
+    yield takeLatest(actionTypes.LOAD_MASTER_KATEGORI, function* ({payload}) {
+        try {
+            const {data: response} = yield guardInstance(payload.token).get(`${baseUrl}/api/v1/inventaris/category/all`)
+            console.log(response)
+            yield put(inventarisDispatch.masterKategoriLoaded(response.data))
+        } catch (e) {
+            message.error(e.message);
+            console.log(e.response);
+        }
+    })
+
+    yield takeLatest(actionTypes.TAMBAH_KATEGORI, function* ({payload}) {
+        try {
+            const {data: response} = yield guardInstance(payload.token).post(`${baseUrl}/api/v1/inventaris/category/add`, payload.data)
+            console.log(response)
+            yield put(inventarisDispatch.loadMasterKategori(payload))
+        } catch (e) {
+            message.error(e.message);
+            console.log(e.response);
+        }
+    })
+
+    yield takeLatest(actionTypes.DELETE_KATEGORI, function* ({payload}) {
+        try {
+            const {data: response} = yield guardInstance(payload.token).delete(`${baseUrl}/api/v1/inventaris/category/delete/${payload.id}`)
+            console.log(response)
+            yield put(inventarisDispatch.loadMasterKategori(payload))
+
+        }catch (e) {
+            message.error(e.message);
+            console.log(e.response);
+        }
+    })
+
+    yield takeLatest(actionTypes.UPDATE_KATEGORI, function* ({payload}) {
+        try {
+            const {data: response} = yield guardInstance(payload.token).put(`${baseUrl}/api/v1/inventaris/category/update/${payload.id}`, payload.data)
+            console.log(response)
+            yield put(inventarisDispatch.loadMasterKategori(payload))
+
+        }catch (e) {
             message.error(e.message);
             console.log(e.response);
         }

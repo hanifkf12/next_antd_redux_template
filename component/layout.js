@@ -107,7 +107,7 @@ export default function LayoutKu({children}) {
                         </SubMenu>
                         <SubMenu key="/admin" icon={<SettingOutlined />} title={"Admin"}>
                             <Menu.Item key="/admin/tutup-buku">Tutup Buku</Menu.Item>
-                            <Menu.Item key="/admin/master">Master Kategori</Menu.Item>
+                            <Menu.Item key="/admin/master-kategori">Master Kategori</Menu.Item>
                         </SubMenu>
                         {/*<Menu.Item key="7" icon={<InfoCircleOutlined/>}>*/}
                         {/*    Pemasukan*/}
