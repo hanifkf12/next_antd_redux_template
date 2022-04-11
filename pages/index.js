@@ -7,44 +7,29 @@ import axios from "axios";
 import Layout from "../component/layout";
 import LayoutKu from "../component/layout";
 import {Card, Col, Row} from "antd";
+import {connect} from "react-redux";
+import {testDispatch} from "../redux/tes/testRedux";
+import {useEffect} from "react";
 
-export default function Home(props) {
+function Home(props) {
   const router = useRouter();
   const { data: session, status } = useSession();
   console.log('props, ',props)
   console.log(session)
+  useEffect(()=>{
+    props.tesDong();
+  }, [])
   return (
     <Row gutter={6}>
-      <Col span={12} >
-        <Row>
-          <Col span={24}>
-            <Card title={'Simpanan Wajib'}>
-
-            </Card>
-          </Col>
-        </Row>
-        <Row style={{marginTop: '6px'}}>
-          <Col span={24}>
-            <Card title={'Simpanan Pokok'}>
-
-            </Card>
-          </Col>
-        </Row>
-      </Col>
       <Col span={12}>
         <Row>
-          <Col span={24}>
-            <Card title={'Pemasukan Pinjaman'} >
+          {props.data.map(tes => (
+              <Col key={tes.id} span={24}>
+                <Card title={tes.original_title} >
 
-            </Card>
-          </Col>
-        </Row>
-        <Row style={{marginTop: '6px'}}>
-          <Col span={24}>
-            <Card title={'Pemasukan Pinjaman'} >
-
-            </Card>
-          </Col>
+                </Card>
+              </Col>
+          ))}
         </Row>
       </Col>
     </Row>
@@ -59,17 +44,13 @@ Home.getLayout = function getLayout(page) {
   )
 }
 
-// export async function getServerSideProps (context) {
-//   const {data: data} = await axios.get('https://jsonplaceholder.typicode.com/todos/1')
-//   const session = await getSession(context)
-//   console.log('my=session, ',session)
-//   console.log(data)
-//   return {
-//     props: {
-//       name: "hanif",
-//       data: data
-//     }, // will be passed to the page component as props
-//   }
-// }
+const mapStateToProps = (state) => {
+  return {
+    tes: state.tes.tes,
+    data: state.tes.data
+  }
+}
+
+export default connect(mapStateToProps, testDispatch)(Home)
 
 Home.auth = true

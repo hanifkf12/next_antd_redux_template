@@ -32,3 +32,10 @@ a {
   margin: 16px 0 16px 24px;
 }
 
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+  background: transparent;
+}
+.ant-menu{
+  background: yellow;
+}
+
