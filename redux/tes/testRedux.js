@@ -44,7 +44,7 @@ export function* saga(){
     yield takeLatest(actionTypes.TES, function* (){
         try {
             const {data: response} = yield axios.get(`https://api.themoviedb.org/3/movie/popular?api_key=23256e2f55aec19420181dbb09b3d7ba`)
-            console.log('DATA COVID, ',response)
+            console.log('DATA MOVIE, ',response)
             yield put (testDispatch.tesLoaded(response.results))
             console.log('SAGA TEST')
         }catch (e) {
