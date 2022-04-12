@@ -7,12 +7,18 @@ import axios from "axios";
 import Layout from "../component/layout";
 import LayoutKu from "../component/layout";
 import {Card, Col, Row} from "antd";
+import {useEffect} from "react";
+import {connect} from "react-redux";
+import {testDispatch} from "../redux/tes/testRedux";
 
-export default function Home(props) {
+const Home = (props) => {
   const router = useRouter();
   const { data: session, status } = useSession();
   console.log('props, ',props)
   console.log(session)
+  useEffect(()=>{
+    console.log('tess')
+  }, [])
   return (
     <Row gutter={6}>
       <Col span={12} >
@@ -59,17 +65,14 @@ Home.getLayout = function getLayout(page) {
   )
 }
 
-// export async function getServerSideProps (context) {
-//   const {data: data} = await axios.get('https://jsonplaceholder.typicode.com/todos/1')
-//   const session = await getSession(context)
-//   console.log('my=session, ',session)
-//   console.log(data)
-//   return {
-//     props: {
-//       name: "hanif",
-//       data: data
-//     }, // will be passed to the page component as props
-//   }
-// }
+const mapStateToProps = (state) => {
+  return{
+    tes: state.tes.tes,
+    data: state.tes.data
+  }
+}
+
 
 Home.auth = true
+
+export default connect(mapStateToProps, testDispatch)(Home)

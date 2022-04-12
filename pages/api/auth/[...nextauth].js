@@ -29,10 +29,16 @@ export default NextAuth({
                 //     headers: { "Content-Type": "application/json" }
                 // })
                 // const response = await res.json()
-                const {data: response}= await axios.post(`${process.env.BASE_URL}/api/v1/users/admin/login`, credentials)
-                // console.log(response)
-                if(response.status) {
-                    return response
+                // const {data: response}= await axios.post(`${process.env.BASE_URL}/api/v1/users/admin/login`, credentials)
+                // // console.log(response)
+                // if(response.status) {
+                //     return response
+                // }
+                if(credentials.username==='admin' && credentials.password==='admin'){
+                    return {
+                        user: 'hanif',
+                        token: 'tokenasdasdsa'
+                    }
                 }
                 // Return null if user data could not be retrieved
                 return null
