@@ -51,6 +51,6 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps, testDispatch)(Home)
-
 Home.auth = true
+
+export default connect(mapStateToProps, testDispatch)(Home)
